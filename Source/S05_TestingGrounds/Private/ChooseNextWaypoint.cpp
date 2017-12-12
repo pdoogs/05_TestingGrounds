@@ -4,6 +4,7 @@
 #include "Classes/BehaviorTree/BlackboardComponent.h"
 #include "PatrollingGuard.h"
 #include "AIController.h"
+#include "PatrolRoute.h"
 
 EBTNodeResult::Type UChooseNextWaypoint::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
@@ -13,11 +14,13 @@ EBTNodeResult::Type UChooseNextWaypoint::ExecuteTask(UBehaviorTreeComponent& Own
 	auto Index = BlackboardComp->GetValueAsInt(IndexKey.SelectedKeyName);
 
 	auto AIController = OwnerComp.GetAIOwner();
-	auto PatrollingGuard = Cast<APatrollingGuard>(AIController->GetPawn()); // TODO Remove coupling
-	if (!ensure(PatrollingGuard)) return EBTNodeResult::Failed;
+	if (!ensure(AIController->GetPawn())) { return EBTNodeResult::Failed; }
+
+	auto PatrolRoute = AIController->GetPawn()->FindComponentByClass<UPatrolRoute>();
+	if (!ensure(PatrolRoute)) return EBTNodeResult::Failed;
 
 	// Get Patrol Points
-	auto PatrolPoints = PatrollingGuard->GetPatrolPoints();
+	auto PatrolPoints = PatrolRoute->GetPatrolPoints();
 	if (!ensure(Index >= 0 && Index < PatrolPoints.Num())) return  EBTNodeResult::Failed;
 
 	// Set Next Waypoint
