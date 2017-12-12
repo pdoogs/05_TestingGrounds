@@ -7,11 +7,13 @@
 
 EBTNodeResult::Type UChooseNextWaypoint::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
+	// TODO protect against empty patrol routes
+
 	auto BlackboardComp = OwnerComp.GetBlackboardComponent();
 	auto Index = BlackboardComp->GetValueAsInt(IndexKey.SelectedKeyName);
 
 	auto AIController = OwnerComp.GetAIOwner();
-	auto PatrollingGuard = Cast<APatrollingGuard>(AIController->GetPawn());
+	auto PatrollingGuard = Cast<APatrollingGuard>(AIController->GetPawn()); // TODO Remove coupling
 	if (!ensure(PatrollingGuard)) return EBTNodeResult::Failed;
 
 	// Get Patrol Points
@@ -19,7 +21,6 @@ EBTNodeResult::Type UChooseNextWaypoint::ExecuteTask(UBehaviorTreeComponent& Own
 	if (!ensure(Index >= 0 && Index < PatrolPoints.Num())) return  EBTNodeResult::Failed;
 
 	// Set Next Waypoint
-	auto PatrolActor = PatrolPoints[Index];
 	BlackboardComp->SetValueAsObject(WaypointKey.SelectedKeyName, PatrolPoints[Index]);
 
 	// Cycle Index
