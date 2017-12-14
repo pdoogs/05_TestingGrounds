@@ -39,6 +39,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	class UAnimInstance* AnimInstance = nullptr;
 
+	UPROPERTY(EditAnywhere, Category = Projectile)
+	float ProjectileSpeed = 100000.0f;
+
 protected:
 	/** Gun muzzle's offset from the characters location */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)

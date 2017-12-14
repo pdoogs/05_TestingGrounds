@@ -5,6 +5,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Weapons/BallProjectile.h"
 #include "Misc/AssertionMacros.h"
+#include "Public/DrawDebugHelpers.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 
 // Sets default values
 AGun::AGun()
@@ -60,6 +62,7 @@ void AGun::OnFire()
 			// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
 			//const FVector SpawnLocation = ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
 
+			//const FRotator SpawnRotation = FP_MuzzleLocation->GetComponentRotation();
 			const FRotator SpawnRotation = FP_MuzzleLocation->GetComponentRotation();
 			const FVector SpawnLocation = FP_MuzzleLocation->GetComponentLocation();
 
@@ -68,7 +71,17 @@ void AGun::OnFire()
 			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
 			// spawn the projectile at the muzzle
-			World->SpawnActor<ABallProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+			//World->SpawnActor<ABallProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+			auto Projectile = World->SpawnActor<ABallProjectile>(ProjectileClass, SpawnLocation, SpawnRotation);
+			if (Projectile)
+			{
+				auto ProjectileMovementComponent = Projectile->FindComponentByClass<UProjectileMovementComponent>();
+				if (ProjectileMovementComponent)
+				{
+					ProjectileMovementComponent->SetVelocityInLocalSpace(FVector::ForwardVector * ProjectileSpeed);
+					ProjectileMovementComponent->Activate();
+				}
+			}
 		}
 	}
 
